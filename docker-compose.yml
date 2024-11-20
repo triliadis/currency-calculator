@@ -1,8 +1,29 @@
-# # local
 services:
+  backend:
+    image: tiliadis/currencycalculator-backend:latest
+    container_name: backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm run seed && npm start"
+
+  frontend:
+    image: tiliadis/currencycalculator-frontend:latest
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
   db:
     image: postgres:14
-    container_name: localhost
+    container_name: db
     ports:
       - "5432:5432"
     environment:
@@ -16,65 +37,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-  backend:
-    build:
-      context: ./backend
-    container_name: backend
-    ports:
-      - "5000:5000"
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    command: sh -c "npm run seed && npm start"
-  frontend:
-    build:
-      context: ./frontend
-    container_name: frontend
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env # Use frontend/.env for frontend service
-    depends_on:
-      - backend
 
 volumes:
   db_data:
-
-# docker hub
-# services:
-#   backend:
-#     image: tiliadis/currencycalculator-backend:latest
-#     container_name: backend
-#     ports:
-#       - "5000:5000"
-#     env_file:
-#       - backend/.env
-#     depends_on:
-#       - db
-
-#   frontend:
-#     image: tiliadis/currencycalculator-frontend:latest
-#     container_name: frontend
-#     ports:
-#       - "5173:5173"
-#     env_file:
-#       - frontend/.env
-#     depends_on:
-#       - backend
-
-#   db:
-#     image: postgres:14
-#     container_name: db
-#     ports:
-#       - "5432:5432"
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: secret
-#       POSTGRES_DB: currency_calculator
-#     volumes:
-#       - db_data:/var/lib/postgresql/data
-
-# volumes:
-#   db_data:
